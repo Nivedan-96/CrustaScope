@@ -402,65 +402,16 @@ async def legacy_water(request: Request):
 # Detect available camera indexes on the system for camera selection
 @app.get("/cameras")
 async def list_cameras():
-    """
-    Detect working cameras (must return frames)
-    """
-    available = []
+    return {"cameras": []}
 
-    for idx in range(5):
-        cap = cv2.VideoCapture(idx, cv2.CAP_DSHOW)
-        if cap is not None and cap.isOpened():
-            ret, frame = cap.read()
-            if ret:
-                available.append(idx)
-            cap.release()
-
-    return {"cameras": available}
 
 # API endpoint to start shrimp monitoring using the selected camera
 @app.post("/start")
 async def start_monitor(payload: dict):
     """
-    Start ML monitoring on selected camera index.
+    Camera disabled in cloud deployment
     """
-
-    # Access global camera state variables
-    global camera, monitoring, current_camera_index
-
-    # Read camera index from request payload
-    cam_index = payload.get("camera_index")
-
-    # Validate that camera index was provided by client
-    if cam_index is None:
-        raise HTTPException(status_code=400, detail="camera_index is required")
-
-    # If monitoring already running, avoid restarting camera
-    if monitoring and camera is not None:
-        return {"status": "already_running", "camera_index": current_camera_index}
-
-    # Attempt to open the selected camera using OpenCV via V4L2
-    cam = cv2.VideoCapture(cam_index, cv2.CAP_DSHOW)
-
-    print(f"[DEBUG] Trying camera index: {cam_index}")
-
-    if not cam.isOpened():
-        print("[ERROR] Camera failed to open")
-        raise HTTPException(status_code=500, detail="Unable to open camera index")
-    # Store camera object for streaming and ML inference
-    camera = cam
-
-    # Enable monitoring loop
-    monitoring = True
-
-    # Save which camera index is currently active
-    current_camera_index = cam_index
-
-    # Log monitoring start event
-    print(f"[INFO] Monitoring started on camera {cam_index}")
-
-    # Return API response confirming monitoring started
-    return {"status": "started", "camera_index": cam_index}
-
+    return {"status": "Camera not available in cloud deployment"}
 
 
 # Stop camera monitoring and release the camera resource
@@ -483,17 +434,8 @@ async def stop_monitor():
 # Stream live MJPEG video feed from the camera to the browser
 @app.get("/video_feed")
 async def video_feed():
-    """
-    MJPEG video stream endpoint.
-    """
-    if camera is None:
-        raise HTTPException(status_code=400, detail="Camera not started")
-    return StreamingResponse(
-        gen_frames(),
-        media_type="multipart/x-mixed-replace; boundary=frame",
-    )
-
-
+    raise HTTPException(status_code=400, detail="Camera not supported in cloud")
+	
 
 # Return the most recent ML detection result for frontend status updates
 @app.get("/status")
@@ -696,12 +638,17 @@ async def download_snap(kind: str, snap_id: str, fmt: str = "jpg"):
 async def upload_test(file: UploadFile = File(...)):
     global last_result
 
-    contents = await file.read()
-    img_array = np.frombuffer(contents, np.uint8)
-    img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+    try:
+        contents = await file.read()
 
-    if img is None:
-        raise HTTPException(status_code=400, detail="Invalid image")
+        # Use PIL (more robust than cv2)
+        image = Image.open(io.BytesIO(contents)).convert("RGB")
+
+        # Convert to OpenCV format
+        img = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid image format")
 
     # Run ML
     conf = predict_image(img)
@@ -715,7 +662,6 @@ async def upload_test(file: UploadFile = File(...)):
 
     sensor_data = read_latest_sensor()
 
-    # Update last_result just like camera flow
     last_result = {
         "label": label,
         "confidence": conf,
@@ -729,8 +675,6 @@ async def upload_test(file: UploadFile = File(...)):
         "snapshot_saved": snapshot_saved,
         "sensor_at_capture": sensor_data,
     }
-
-
 
 # Start the FastAPI application using the Uvicorn ASGI server when the script is run directly
 # This launches the backend API server so the web interface and endpoints become accessible
