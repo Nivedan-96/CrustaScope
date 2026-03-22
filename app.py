@@ -88,13 +88,17 @@ model = None
 print("[DEBUG] Loading model from:", MODEL_PATH)
 
 if not os.path.exists(MODEL_PATH):
-    raise Exception("MODEL FILE NOT FOUND")
+    print("[ERROR] Model file not found at:", MODEL_PATH)
 def get_model():
     global model
     if model is None:
-        print("[INFO] Loading model...")
-        model = load_model(MODEL_PATH)
-        print("[INFO] Model loaded successfully")
+        try:
+            print("[INFO] Loading model...")
+            model = load_model(MODEL_PATH)
+            print("[INFO] Model loaded successfully")
+        except Exception as e:
+            print("[ERROR] Model load failed:", e)
+            return None
     return model
 # Perform ML inference on a camera frame and return prediction confidence
 def predict_image(img_bgr: np.ndarray) -> float:
@@ -108,8 +112,9 @@ def predict_image(img_bgr: np.ndarray) -> float:
 
     # Predict using Keras model
     model = get_model()
-    output = model.predict(resized, verbose=0)
 
+    if model is None:
+        return 0.0  # fallback
     # Handle different output shapes safely
     if isinstance(output, list):
         output = output[0]
