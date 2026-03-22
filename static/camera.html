@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CrustaScope - Camera Live Feed</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Custom scrollbar to match clean design */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    .crab-logo-text {
+      color: #2F64C4;
+    }
+  </style>
+</head>
+
+<body class="bg-[#f8f9fa] text-gray-900 antialiased overflow-x-hidden">
+  <!-- Top Header -->
+  <header
+    class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 fixed top-0 left-0 right-0 z-20">
+    <div class="flex items-center gap-3 w-64">
+      <img src="/static/CrustaScope.png" alt="CrustaScope Logo" class="h-16 object-contain">
+      <span class="text-[1.35rem] font-bold crab-logo-text tracking-tight">CrustaScope</span>
+    </div>
+    <div class="text-gray-500 flex justify-end text-sm font-medium">
+      Mon, Dec 1 &bull; 05:18 PM
+    </div>
+  </header>
+
+  <div class="flex h-screen pt-16">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-gray-200 flex flex-col justify-between z-10 fixed top-16 bottom-0">
+      <nav class="p-4 flex flex-col gap-1.5">
+        <a href="/"
+          class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 border border-transparent rounded-lg font-medium transition-colors">
+          <i class="fa-solid fa-border-all text-lg w-5 text-center"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="/camera"
+          class="flex items-center gap-3 px-4 py-3 bg-blue-50 text-blue-600 border border-blue-200 rounded-lg font-medium transition-colors">
+          <i class="fa-solid fa-camera text-lg w-5 text-center"></i>
+          <span>Camera Live Feed</span>
+        </a>
+        <a href="/reports"
+          class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 border border-transparent rounded-lg font-medium transition-colors">
+          <i class="fa-regular fa-file-lines text-lg w-5 text-center"></i>
+          <span>Reports</span>
+        </a>
+        <a href="/settings"
+          class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 border border-transparent rounded-lg font-medium transition-colors">
+          <i class="fa-solid fa-gear text-lg w-5 text-center"></i>
+          <span>Settings</span>
+        </a>
+      </nav>
+      <div class="p-4 mt-auto space-y-3">
+        <a href="/logout"
+          class="flex items-center gap-3 px-4 py-2.5 text-gray-600 hover:bg-red-50 hover:text-red-600 border border-transparent rounded-lg font-medium transition-colors w-full">
+          <i class="fa-solid fa-arrow-right-from-bracket text-lg w-5 text-center"></i>
+          <span>Logout</span>
+        </a>
+        <div class="text-center px-4 py-2 bg-gray-50 text-gray-500 text-sm rounded border border-gray-200">
+          Version: 1.0.0v
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="ml-64 flex-1 p-6 md:p-8 overflow-y-auto w-full">
+      <div class="max-w-[1400px] mx-auto">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6 flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900 mb-1">Camera Live Feed</h1>
+            <p class="text-gray-500 text-sm">Monitor your security cameras in real-time</p>
+          </div>
+          <div
+            class="flex items-center gap-2 text-red-500 text-sm font-bold px-3 py-1.5 bg-white border border-gray-100 rounded-md shadow-sm tracking-wide">
+            <div class="w-2 h-2 rounded-full bg-red-500"></div>
+            LIVE
+          </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-6 h-[calc(100vh-14rem)]">
+          <div class="w-full lg:w-[300px] xl:w-[350px] shrink-0 flex flex-col">
+            <h2 class="text-base font-bold text-gray-900 mb-4">Camera List</h2>
+
+            <div id="camera-list">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+          <div
+            class="flex-1 w-full bg-[#1A1C29] rounded-xl shadow-inner border border-gray-800 flex flex-col relative overflow-hidden h-[450px] lg:h-auto">
+            <div
+              class="p-5 flex items-start justify-between absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/60 to-transparent h-24 pointer-events-none">
+              <div class="flex items-center gap-3 text-white pointer-events-auto">
+                <i class="fa-solid fa-camera mb-3"></i>
+                <div>
+                  <div class="text-[13px] font-semibold tracking-wide">Camera 0 - CrustaScope Monitor</div>
+                  <div class="text-[11px] text-gray-300 font-medium">Aquaculture Tank</div>
+                </div>
+              </div>
+              <div
+                class="flex items-center gap-1.5 px-3 py-1 bg-[#ffeded] text-[#ff6b6b] text-[10px] font-bold rounded-full border border-[#ffcbcb]/50 pointer-events-auto">
+                <i class="fa-solid fa-video-slash"></i> Offline
+              </div>
+            </div>
+
+            <img id="video-stream" src="" class="absolute inset-0 w-full h-full object-contain hidden"
+              alt="Video Stream">
+
+            <div id="stopped-overlay"
+              class="flex-1 flex flex-col items-center justify-center text-center px-4 relative z-0 mt-8">
+              <div class="text-[#64748B] mb-2 cursor-pointer hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                  stroke="currentColor" class="w-[5rem] h-[5rem] font-light">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347c-.75.412-1.667-.13-1.667-.986V5.653Z" />
+                </svg>
+              </div>
+              <h3 class="text-[#94a3b8] text-[15px] font-medium mb-1">Camera Stopped</h3>
+              <p class="text-[#475569] text-[13px] mb-5">Click play to start monitoring</p>
+              <button onclick="startMonitoring()"
+                class="bg-[#2F64C4] hover:bg-blue-700 text-white text-sm font-medium px-5 py-2 rounded-md transition-colors shadow-sm">
+                Start Monitoring
+              </button>
+            </div>
+
+            <div
+              class="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex items-center gap-4 bg-black/80 backdrop-blur-md px-6 py-2.5 rounded-lg border border-white/5 text-gray-300 z-10 shadow-2xl">
+              <button onclick="startMonitoring()" class="hover:text-white text-[13px] transition-colors"><i
+                  class="fa-solid fa-play"></i></button>
+              <button onclick="stopMonitoring()" class="hover:text-white text-[13px] transition-colors"><i
+                  class="fa-regular fa-square"></i></button>
+              <div class="w-px h-4 bg-gray-700/80 mx-1"></div>
+              <button class="hover:text-white text-[13px] transition-colors"><i
+                  class="fa-solid fa-magnifying-glass-minus"></i></button>
+              <button class="hover:text-white text-[13px] transition-colors"><i
+                  class="fa-solid fa-magnifying-glass-plus"></i></button>
+              <div class="w-px h-4 bg-gray-700/80 mx-1"></div>
+              <button class="hover:text-white text-[13px] transition-colors"><i
+                  class="fa-solid fa-rotate-right"></i></button>
+              <button class="hover:text-white text-[13px] transition-colors"><i
+                  class="fa-solid fa-volume-high"></i></button>
+              <div class="w-px h-4 bg-gray-700/80 mx-1"></div>
+              <button class="hover:text-white text-[13px] transition-colors"><i class="fa-solid fa-expand"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  </div>
+  <script>
+    let selectedCameraIndex = 0;
+    let isMonitoring = false;
+    let camerasList = [];
+
+    function renderCameraList() {
+      const list = document.getElementById('camera-list');
+      if (camerasList && camerasList.length > 0) {
+        list.innerHTML = camerasList.map(idx => `
+                    <div onclick="selectCamera(${idx})" class="${idx === selectedCameraIndex ? 'bg-blue-50/50 border border-blue-100' : 'bg-gray-50 border border-transparent'} rounded-xl p-4 flex items-start justify-between cursor-pointer w-full mb-2">
+                      <div>
+                        <div class="font-medium text-gray-900 text-[13px] leading-tight mb-1">Camera ${idx} - CrustaScope</div>
+                        <div class="text-[#7e8db2] text-[11px] font-medium">Auto-detected</div>
+                      </div>
+                    </div>
+                `).join('');
+      } else {
+        list.innerHTML = '<div class="text-sm text-gray-500">No cameras found.</div>';
+      }
+    }
+
+    function loadCameras() {
+      fetch('/cameras')
+        .then(r => r.json())
+        .then(data => {
+          camerasList = data.cameras;
+          if (camerasList && camerasList.length > 0) {
+            selectedCameraIndex = camerasList[0];
+            renderCameraList();
+            startMonitoring();
+          } else {
+            renderCameraList();
+          }
+        })
+        .catch(err => console.error("Error loading cameras", err));
+    }
+
+    function selectCamera(idx) {
+      if (selectedCameraIndex !== idx) {
+        selectedCameraIndex = idx;
+        renderCameraList();
+        stopMonitoring().then(() => startMonitoring());
+      }
+    }
+
+    function startMonitoring() {
+      fetch('/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ camera_index: selectedCameraIndex })
+      })
+        .then(r => r.json())
+        .then(res => {
+          isMonitoring = true;
+          document.getElementById('stopped-overlay').classList.add('hidden');
+          document.getElementById('video-stream').classList.remove('hidden');
+          document.getElementById('video-stream').src = '/video_feed?' + new Date().getTime();
+        });
+    }
+
+    function stopMonitoring() {
+      return fetch('/stop', { method: 'POST' })
+        .then(() => {
+          isMonitoring = false;
+          document.getElementById('video-stream').src = '';
+          document.getElementById('video-stream').classList.add('hidden');
+          document.getElementById('stopped-overlay').classList.remove('hidden');
+        });
+    }
+
+    loadCameras();
+  </script>
+</body>
+
+</html>

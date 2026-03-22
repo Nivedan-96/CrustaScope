@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+jinja2
+python-multipart
+opencv-python-headless
+numpy
+pillow
+pymongo
+tf-keras
+adafruit-circuitpython-ads1x15
+w1thermsensor
+adafruit-blinka
