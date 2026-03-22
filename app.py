@@ -61,6 +61,7 @@ LATEST_SENSOR_JSON = "latest_sensor.json"
 
 # Initialize MongoDB connection and prepare collections for snapshots and sensor data
 MONGO_URI = os.getenv("MONGODB_URI")
+print("[DEBUG] MONGO_URI:", MONGO_URI)
 client = None
 db = None
 snaps_wssv = None
