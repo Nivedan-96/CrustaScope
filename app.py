@@ -108,7 +108,7 @@ def predict_image(img_bgr: np.ndarray) -> float:
 
     # Predict using Keras model
     model = get_model()
-	output = model.predict(resized, verbose=0)
+    output = model.predict(resized, verbose=0)
 
     # Handle different output shapes safely
     if isinstance(output, list):
@@ -116,7 +116,6 @@ def predict_image(img_bgr: np.ndarray) -> float:
 
     conf = float(output[0][0])  # binary classification
     return conf
-
 
 # Convert model confidence score into a readable shrimp health classification label
 def classify_label(conf: float) -> str:
@@ -277,7 +276,7 @@ def gen_frames():
             print("[WARN] Camera read failed.")
             break
 
-	# Run ML prediction on the frame, optionally save snapshot, and update latest detection result
+    # Run ML prediction on the frame, optionally save snapshot, and update latest detection result
         conf = predict_image(frame)
         label = classify_label(conf)
         now_iso = datetime.now().isoformat()
@@ -294,7 +293,7 @@ def gen_frames():
             "snapshot_saved": snapshot_saved,
         }
 
-	# Overlay prediction label and confidence text on the video frame
+    # Overlay prediction label and confidence text on the video frame
         if label == "WSSV DETECTED":
             color = (0, 0, 255)
         elif label == "Healthy Shrimp":
@@ -314,7 +313,7 @@ def gen_frames():
         )
 
 
-	# Encode processed frame as JPEG and stream it as MJPEG to the browser
+    # Encode processed frame as JPEG and stream it as MJPEG to the browser
         ok, buffer = cv2.imencode(".jpg", frame)
         if not ok:
             continue
@@ -450,7 +449,7 @@ async def stop_monitor():
 @app.get("/video_feed")
 async def video_feed():
     raise HTTPException(status_code=400, detail="Camera not supported in cloud")
-	
+    
 
 # Return the most recent ML detection result for frontend status updates
 @app.get("/status")
