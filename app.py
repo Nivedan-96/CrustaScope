@@ -685,10 +685,8 @@ async def upload_test(file: UploadFile = File(...)):
         contents = await file.read()
 
         # Use PIL (more robust than cv2)
-        image = Image.open(io.BytesIO(contents)).convert("RGB")
-
-        # Convert to OpenCV format
-        img = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+        img_array = np.frombuffer(contents, np.uint8)
+        img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
 
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid image format")
