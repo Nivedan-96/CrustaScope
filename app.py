@@ -100,27 +100,50 @@ def get_model():
             print("[ERROR] Model load failed:", e)
             return None
     return model
+
+
 # Perform ML inference on a camera frame and return prediction confidence
 def predict_image(img_bgr: np.ndarray) -> float:
     """
     Run H5 model on a BGR frame and return confidence (float).
     """
-    img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
-    resized = cv2.resize(img_rgb, (224, 224))
-    resized = resized.astype(np.float32) / 255.0
-    resized = np.expand_dims(resized, axis=0)
+    try:
+        img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
+        resized = cv2.resize(img_rgb, (224, 224))
+        resized = resized.astype(np.float32) / 255.0
+        resized = np.expand_dims(resized, axis=0)
 
-    # Predict using Keras model
-    model = get_model()
+        model = get_model()
+        if model is None:
+            print("[ERROR] Model is None")
+            return 0.0
 
-    if model is None:
-        return 0.0  # fallback
-    # Handle different output shapes safely
-    if isinstance(output, list):
-        output = output[0]
+        output = model.predict(resized, verbose=0)
 
-    conf = float(output[0][0])  # binary classification
-    return conf
+        print("[DEBUG] Raw model output:", output)
+
+        # Normalize output
+        if isinstance(output, list):
+            output = output[0]
+
+        # Convert to numpy array safely
+        output = np.array(output)
+
+        # Handle shapes
+        if output.ndim == 2:
+            conf = float(output[0][0])
+        elif output.ndim == 1:
+            conf = float(output[0])
+        else:
+            print("[WARN] Unexpected output shape:", output.shape)
+            return 0.0
+
+        return conf
+
+    except Exception as e:
+        print("[ERROR] Prediction failed:", e)
+        return 0.0
+
 
 # Convert model confidence score into a readable shrimp health classification label
 def classify_label(conf: float) -> str:
