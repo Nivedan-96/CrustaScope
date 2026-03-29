@@ -36,19 +36,22 @@ app = FastAPI()
 # Authentication Middleware
 @app.middleware("http")
 async def require_auth(request: Request, call_next):
-    # Exclude certain paths from authentication
     path = request.url.path
-    if path == "/login" or path.startswith("/static/") or path == "/favicon.ico":
+
+    # Allow public routes
+    if (
+        path.startswith("/login")
+        or path.startswith("/static/")
+        or path.startswith("/ingest")   # ✅ ADD THIS
+        or path.startswith("/favicon.ico")
+    ):
         return await call_next(request)
-    
-    # Check for authentication cookie
+
     auth_token = request.cookies.get("auth")
     if auth_token != "admin":
         return RedirectResponse(url="/login", status_code=303)
-        
-    response = await call_next(request)
-    return response
 
+    return await call_next(request)
 
 # Configure static file serving and HTML template rendering directory
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -160,8 +163,8 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 # Global runtime state for camera monitoring, latest detection result, and snapshot cooldown tracking
-# camera = None
-# monitoring = False
+camera = None
+monitoring = False
 current_camera_index = None
 
 last_result = {
