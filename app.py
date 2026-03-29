@@ -4,10 +4,11 @@ import io
 import time
 import json
 import subprocess
-
+from fastapi import Body
+import base64
 from datetime import datetime
 
-import cv2
+# import cv2
 import numpy as np
 from fastapi import FastAPI, Request, UploadFile, File, HTTPException, Form
 from fastapi.responses import (
@@ -24,7 +25,7 @@ from bson import ObjectId
 from bson.binary import Binary
 
 # import tflite_runtime.interpreter as tflite
-from tensorflow.keras.models import load_model
+# from tensorflow.keras.models import load_model
 
 print("[INFO] App starting...")
 
@@ -84,84 +85,84 @@ else:
 
 # Path to the trained model used for shrimp disease detection
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "CrustaScope_model.h5")
-model = None
-print("[DEBUG] Loading model from:", MODEL_PATH)
+# MODEL_PATH = os.path.join(BASE_DIR, "CrustaScope_model.h5")
+# model = None
+# print("[DEBUG] Loading model from:", MODEL_PATH)
 
-if not os.path.exists(MODEL_PATH):
-    print("[ERROR] Model file not found at:", MODEL_PATH)
-def get_model():
-    global model
-    if model is None:
-        try:
-            print("[INFO] Loading model...")
-            model = load_model(MODEL_PATH)
-            print("[INFO] Model loaded successfully")
-        except Exception as e:
-            print("[ERROR] Model load failed:", e)
-            return None
-    return model
-
-
-# Perform ML inference on a camera frame and return prediction confidence
-def predict_image(img_bgr: np.ndarray) -> float:
-    """
-    Run H5 model on a BGR frame and return confidence (float).
-    """
-    try:
-        img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
-        resized = cv2.resize(img_rgb, (224, 224))
-        resized = (resized.astype(np.float32) - 127.5) / 127.5
-        resized = np.expand_dims(resized, axis=0)
-
-        model = get_model()
-        if model is None:
-            print("[ERROR] Model is None")
-            return 0.0
-
-        output = model.predict(resized, verbose=0)
-
-        print("[DEBUG] Raw model output:", output)
-
-        # Normalize output
-        if isinstance(output, list):
-            output = output[0]
-
-        # Convert to numpy array safely
-        output = np.array(output)
-
-        # Handle shapes
-        if output.ndim == 2:
-            conf = float(output[0][0])
-        elif output.ndim == 1:
-            conf = float(output[0])
-        else:
-            print("[WARN] Unexpected output shape:", output.shape)
-            return 0.0
-
-        return conf
-
-    except Exception as e:
-        print("[ERROR] Prediction failed:", e)
-        return 0.0
+# if not os.path.exists(MODEL_PATH):
+#     print("[ERROR] Model file not found at:", MODEL_PATH)
+# def get_model():
+#     global model
+#     if model is None:
+#         try:
+#             print("[INFO] Loading model...")
+#             model = load_model(MODEL_PATH)
+#             print("[INFO] Model loaded successfully")
+#         except Exception as e:
+#             print("[ERROR] Model load failed:", e)
+#             return None
+#     return model
 
 
-# Convert model confidence score into a readable shrimp health classification label
-def classify_label(conf: float) -> str:
-    """
-    Convert model confidence into label.
-    """
-    if conf >= 0.7:
-        return "WSSV DETECTED"
-    elif conf <= 0.3:
-        return "Healthy Shrimp"
-    else:
-        return "No Shrimp"
+# # Perform ML inference on a camera frame and return prediction confidence
+# def predict_image(img_bgr: np.ndarray) -> float:
+#     """
+#     Run H5 model on a BGR frame and return confidence (float).
+#     """
+#     try:
+#         img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
+#         resized = cv2.resize(img_rgb, (224, 224))
+#         resized = (resized.astype(np.float32) - 127.5) / 127.5
+#         resized = np.expand_dims(resized, axis=0)
+
+#         model = get_model()
+#         if model is None:
+#             print("[ERROR] Model is None")
+#             return 0.0
+
+#         output = model.predict(resized, verbose=0)
+
+#         print("[DEBUG] Raw model output:", output)
+
+#         # Normalize output
+#         if isinstance(output, list):
+#             output = output[0]
+
+#         # Convert to numpy array safely
+#         output = np.array(output)
+
+#         # Handle shapes
+#         if output.ndim == 2:
+#             conf = float(output[0][0])
+#         elif output.ndim == 1:
+#             conf = float(output[0])
+#         else:
+#             print("[WARN] Unexpected output shape:", output.shape)
+#             return 0.0
+
+#         return conf
+
+#     except Exception as e:
+#         print("[ERROR] Prediction failed:", e)
+#         return 0.0
+
+
+# # Convert model confidence score into a readable shrimp health classification label
+# def classify_label(conf: float) -> str:
+#     """
+#     Convert model confidence into label.
+#     """
+#     if conf >= 0.7:
+#         return "WSSV DETECTED"
+#     elif conf <= 0.3:
+#         return "Healthy Shrimp"
+#     else:
+#         return "No Shrimp"
 
 
 # Global runtime state for camera monitoring, latest detection result, and snapshot cooldown tracking
-camera = None
-monitoring = False
+# camera = None
+# monitoring = False
 current_camera_index = None
 
 last_result = {
@@ -175,21 +176,71 @@ last_snap_time = 0.0
 
 
 
-# Read the latest water-quality sensor data from the JSON file written by the sensor reader
-def read_latest_sensor():
-    """
-    Read most recent sensor JSON written by sensor_reader.py.
-    Returns dict or None.
-    """
-    if not os.path.exists(LATEST_SENSOR_JSON):
-        return None
+@app.post("/ingest")
+async def ingest_data(payload: dict = Body(...)):
+    global last_result
+
     try:
-        with open(LATEST_SENSOR_JSON, "r") as f:
-            data = json.load(f)
-        return data
+        label = payload.get("label")
+        confidence = payload.get("confidence")
+        image_base64 = payload.get("image")
+        sensor = payload.get("sensor")
+
+        if client is None or db is None:
+            return {"status": "db_not_available"}
+
+        if label == "WSSV DETECTED":
+            col = snaps_wssv
+            kind = "wssv"
+        elif label == "Healthy Shrimp":
+            col = snaps_healthy
+            kind = "healthy"
+        else:
+            return {"status": "ignored"}
+
+        img_bytes = base64.b64decode(image_base64)
+
+        doc = {
+            "kind": kind,
+            "label": label,
+            "confidence": float(confidence),
+            "created_at": datetime.utcnow().isoformat(),
+            "image_bytes": Binary(img_bytes),
+            "image_format": "jpg",
+            "sensor_at_capture": sensor,
+        }
+
+        col.insert_one(doc)
+
+        print("[INFO] Data received from Pi:", label)
+        last_result = {
+            "label": label,
+            "confidence": confidence,
+            "timestamp": datetime.utcnow().isoformat(),
+            "snapshot_saved": True,
+        }
+
+        return {"status": "saved"}
+
     except Exception as e:
-        print("[WARN] Could not read latest_sensor.json:", e)
-        return None
+        print("[ERROR] Ingest failed:", e)
+        return {"status": "error"}
+
+# Read the latest water-quality sensor data from the JSON file written by the sensor reader
+# def read_latest_sensor():
+#     """
+#     Read most recent sensor JSON written by sensor_reader.py.
+#     Returns dict or None.
+#     """
+#     if not os.path.exists(LATEST_SENSOR_JSON):
+#         return None
+#     try:
+#         with open(LATEST_SENSOR_JSON, "r") as f:
+#             data = json.load(f)
+#         return data
+#     except Exception as e:
+#         print("[WARN] Could not read latest_sensor.json:", e)
+#         return None
 
 
 
@@ -209,150 +260,150 @@ def get_snap_collection(kind: str):
 
 
 # Function to store a detected shrimp snapshot and related sensor data into MongoDB
-def save_snapshot(label: str, confidence: float, frame_bgr: np.ndarray):
-    """
-    Save snapshot to MongoDB (WSSV or Healthy only),
-    along with current sensor data, using SNAP_COOLDOWN_SECONDS.
-    """
+# def save_snapshot(label: str, confidence: float, frame_bgr: np.ndarray):
+#     """
+#     Save snapshot to MongoDB (WSSV or Healthy only),
+#     along with current sensor data, using SNAP_COOLDOWN_SECONDS.
+#     """
 
-    # Use global variable to track last time a snapshot was stored
-    global last_snap_time
+#     # Use global variable to track last time a snapshot was stored
+#     global last_snap_time
 
-    # Get current timestamp to enforce cooldown between DB writes
-    now_ts = time.time()
+#     # Get current timestamp to enforce cooldown between DB writes
+#     now_ts = time.time()
 
-    # Skip saving if cooldown period has not passed
-    if now_ts - last_snap_time < SNAP_COOLDOWN_SECONDS:
-        # Cooldown active – do not spam DB
-        return
+#     # Skip saving if cooldown period has not passed
+#     if now_ts - last_snap_time < SNAP_COOLDOWN_SECONDS:
+#         # Cooldown active – do not spam DB
+#         return
 
-    # Ensure MongoDB connection and collections are available
-    if client is None or db is None or snaps_wssv is None or snaps_healthy is None:
-        print("[WARN] MongoDB not available. Snapshot not saved.")
-        return
+#     # Ensure MongoDB connection and collections are available
+#     if client is None or db is None or snaps_wssv is None or snaps_healthy is None:
+#         print("[WARN] MongoDB not available. Snapshot not saved.")
+#         return
 
-    # Choose correct MongoDB collection depending on detection label
-    if label == "WSSV DETECTED":
-        col = snaps_wssv
-        kind = "wssv"
-    elif label == "Healthy Shrimp":
-        col = snaps_healthy
-        kind = "healthy"
-    else:
-        # "No Shrimp" detections are ignored and not stored
-        return
+#     # Choose correct MongoDB collection depending on detection label
+#     if label == "WSSV DETECTED":
+#         col = snaps_wssv
+#         kind = "wssv"
+#     elif label == "Healthy Shrimp":
+#         col = snaps_healthy
+#         kind = "healthy"
+#     else:
+#         # "No Shrimp" detections are ignored and not stored
+#         return
 
-    # Encode the camera frame into JPEG format for storage
-    ok, buf = cv2.imencode(".jpg", frame_bgr)
+#     # Encode the camera frame into JPEG format for storage
+#     ok, buf = cv2.imencode(".jpg", frame_bgr)
 
-    # If encoding fails, skip saving the snapshot
-    if not ok:
-        print("[WARN] Could not encode frame as JPEG.")
-        return
+#     # If encoding fails, skip saving the snapshot
+#     if not ok:
+#         print("[WARN] Could not encode frame as JPEG.")
+#         return
 
-    # Convert encoded image buffer into raw bytes
-    img_bytes = buf.tobytes()
+#     # Convert encoded image buffer into raw bytes
+#     img_bytes = buf.tobytes()
 
-    # Read latest sensor readings (temperature, pH, turbidity, TDS)
-    sensor_doc = read_latest_sensor()
+#     # Read latest sensor readings (temperature, pH, turbidity, TDS)
+#     sensor_doc = read_latest_sensor()
 
-    # Prepare MongoDB document containing detection metadata and image
-    doc = {
-        "kind": kind,
-        "label": label,
-        "confidence": float(confidence),
-        "created_at": datetime.utcnow().isoformat(),
+#     # Prepare MongoDB document containing detection metadata and image
+#     doc = {
+#         "kind": kind,
+#         "label": label,
+#         "confidence": float(confidence),
+#         "created_at": datetime.utcnow().isoformat(),
 
-        # Store image safely in MongoDB as binary data
-        "image_bytes": Binary(img_bytes),
+#         # Store image safely in MongoDB as binary data
+#         "image_bytes": Binary(img_bytes),
 
-        # Store image format for reference
-        "image_format": "jpg",
+#         # Store image format for reference
+#         "image_format": "jpg",
 
-        # Attach sensor readings captured at the time of detection
-        "sensor_at_capture": sensor_doc,
+#         # Attach sensor readings captured at the time of detection
+#         "sensor_at_capture": sensor_doc,
 
-        # Save which camera index detected the shrimp
-        "camera_index": current_camera_index,
-    }
+#         # Save which camera index detected the shrimp
+#         "camera_index": current_camera_index,
+#     }
 
-# Insert snapshot record into MongoDB and update cooldown timestamp
-    try:
-        col.insert_one(doc)
-        last_snap_time = now_ts
-        print(f"[INFO] Saved {label} snapshot with sensor data.")
-    except Exception as e:
-        print("[WARN] Error saving snapshot:", e)
+# # Insert snapshot record into MongoDB and update cooldown timestamp
+#     try:
+#         col.insert_one(doc)
+#         last_snap_time = now_ts
+#         print(f"[INFO] Saved {label} snapshot with sensor data.")
+#     except Exception as e:
+#         print("[WARN] Error saving snapshot:", e)
 
 
 
 # Generate live camera frames, run ML prediction, and stream MJPEG video to the web client
-def gen_frames():
-    """
-    Generator that yields MJPEG frames with overlayed prediction.
-    Runs as long as 'monitoring' is True.
-    """
-    global camera, monitoring, last_result
+# def gen_frames():
+#     """
+#     Generator that yields MJPEG frames with overlayed prediction.
+#     Runs as long as 'monitoring' is True.
+#     """
+#     global camera, monitoring, last_result
 
-    if camera is None:
-        print("[WARN] gen_frames called but camera is None.")
-        return
+#     if camera is None:
+#         print("[WARN] gen_frames called but camera is None.")
+#         return
 
-    print("[INFO] Starting frame generator loop...")
-    while monitoring:
-        success, frame = camera.read()
-        if not success:
-            print("[WARN] Camera read failed.")
-            break
+#     print("[INFO] Starting frame generator loop...")
+#     while monitoring:
+#         success, frame = camera.read()
+#         if not success:
+#             print("[WARN] Camera read failed.")
+#             break
 
-    # Run ML prediction on the frame, optionally save snapshot, and update latest detection result
-        conf = predict_image(frame)
-        label = classify_label(conf)
-        now_iso = datetime.now().isoformat()
+#     # Run ML prediction on the frame, optionally save snapshot, and update latest detection result
+#         conf = predict_image(frame)
+#         label = classify_label(conf)
+#         now_iso = datetime.now().isoformat()
 
-        snapshot_saved = False
-        if label in ("WSSV DETECTED", "Healthy Shrimp"):
-            save_snapshot(label, conf, frame)
-            snapshot_saved = True
+#         snapshot_saved = False
+#         if label in ("WSSV DETECTED", "Healthy Shrimp"):
+#             save_snapshot(label, conf, frame)
+#             snapshot_saved = True
 
-        last_result = {
-            "label": label,
-            "confidence": conf,
-            "timestamp": now_iso,
-            "snapshot_saved": snapshot_saved,
-        }
+#         last_result = {
+#             "label": label,
+#             "confidence": conf,
+#             "timestamp": now_iso,
+#             "snapshot_saved": snapshot_saved,
+#         }
 
     # Overlay prediction label and confidence text on the video frame
-        if label == "WSSV DETECTED":
-            color = (0, 0, 255)
-        elif label == "Healthy Shrimp":
-            color = (0, 255, 0)
-        else:
-            color = (0, 255, 255)
+    #     if label == "WSSV DETECTED":
+    #         color = (0, 0, 255)
+    #     elif label == "Healthy Shrimp":
+    #         color = (0, 255, 0)
+    #     else:
+    #         color = (0, 255, 255)
 
-        text = f"{label} ({conf * 100:.1f}%)"
-        cv2.putText(
-            frame,
-            text,
-            (10, 30),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.7,
-            color,
-            2,
-        )
+    #     text = f"{label} ({conf * 100:.1f}%)"
+    #     cv2.putText(
+    #         frame,
+    #         text,
+    #         (10, 30),
+    #         cv2.FONT_HERSHEY_SIMPLEX,
+    #         0.7,
+    #         color,
+    #         2,
+    #     )
 
 
-    # Encode processed frame as JPEG and stream it as MJPEG to the browser
-        ok, buffer = cv2.imencode(".jpg", frame)
-        if not ok:
-            continue
-        frame_bytes = buffer.tobytes()
+    # # Encode processed frame as JPEG and stream it as MJPEG to the browser
+    #     ok, buffer = cv2.imencode(".jpg", frame)
+    #     if not ok:
+    #         continue
+    #     frame_bytes = buffer.tobytes()
 
-        yield (
-            b"--frame\r\nContent-Type: image/jpeg\r\n\r\n"
-            + frame_bytes
-            + b"\r\n"
-        )
+    #     yield (
+    #         b"--frame\r\nContent-Type: image/jpeg\r\n\r\n"
+    #         + frame_bytes
+    #         + b"\r\n"
+    #     )
 
 
     # Release camera resource when streaming loop stops
@@ -464,7 +515,7 @@ async def stop_monitor():
     Stop monitoring & release camera.
     """
     global monitoring, camera, current_camera_index
-    monitoring = False
+    # monitoring = False
     if camera is not None:
         camera.release()
         print("[INFO] Camera released in /stop.")
@@ -494,27 +545,13 @@ async def status():
 # Provide latest water quality sensor readings for the dashboard
 @app.get("/sensor_live")
 async def sensor_live():
-    """
-    Live sensor JSON for dashboard cards.
-    """
-    data = read_latest_sensor()
-    if not data:
-        return {
-            "timestamp": None,
-            "temperature_c": None,
-            "ph": None,
-            "turbidity": None,
-            "tds": None,
-        }
-
     return {
-        "timestamp": data.get("timestamp"),
-        "temperature_c": data.get("temperature_c"),
-        "ph": data.get("ph"),
-        "turbidity": data.get("turbidity"),
-        "tds": data.get("tds"),
+        "timestamp": None,
+        "temperature_c": None,
+        "ph": None,
+        "turbidity": None,
+        "tds": None,
     }
-
 
 
 
@@ -679,43 +716,13 @@ async def download_snap(kind: str, snap_id: str, fmt: str = "jpg"):
 # and the result (label, confidence, and optional snapshot save) is returned to the client
 @app.post("/upload_test")
 async def upload_test(file: UploadFile = File(...)):
-    global last_result
-
-    try:
-        contents = await file.read()
-
-        # Use PIL (more robust than cv2)
-        img_array = np.frombuffer(contents, np.uint8)
-        img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
-
-    except Exception:
-        raise HTTPException(status_code=400, detail="Invalid image format")
-
-    # Run ML
-    conf = predict_image(img)
-    label = classify_label(conf)
-    now_iso = datetime.now().isoformat()
-
-    snapshot_saved = False
-    if label in ("WSSV DETECTED", "Healthy Shrimp"):
-        save_snapshot(label, conf, img)
-        snapshot_saved = True
-
-    sensor_data = read_latest_sensor()
-
-    last_result = {
-        "label": label,
-        "confidence": conf,
-        "timestamp": now_iso,
-        "snapshot_saved": snapshot_saved,
-    }
-
     return {
-        "label": label,
-        "confidence": conf,
-        "snapshot_saved": snapshot_saved,
-        "sensor_at_capture": sensor_data,
+        "label": "Upload disabled in cloud version",
+        "confidence": 0,
+        "snapshot_saved": False,
+        "sensor_at_capture": None,
     }
+    
 
 # Start the FastAPI application using the Uvicorn ASGI server when the script is run directly
 # This launches the backend API server so the web interface and endpoints become accessible
