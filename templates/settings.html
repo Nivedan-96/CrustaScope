@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrustaScope - Settings</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Custom scrollbar to match clean design */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .crab-logo-text {
+            color: #2F64C4;
+        }
+    </style>
+</head>
+<body class="bg-[#f8f9fa] text-gray-900 antialiased overflow-x-hidden">
+    <!-- Top Header -->
+    <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 fixed top-0 left-0 right-0 z-20">
+        <div class="flex items-center gap-3 w-64">
+            <img src="/img/CrustaScope.png" alt="CrustaScope Logo" class="h-9 object-contain">
+            <span class="text-[1.35rem] font-bold crab-logo-text tracking-tight">CrustaScope</span>
+        </div>
+        <div class="text-gray-500 flex justify-end text-sm font-medium">
+            Mon, Dec 1 &bull; 05:18 PM
+        </div>
+    </header>
+
+    <div class="flex h-screen pt-16">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white border-r border-gray-200 flex flex-col justify-between z-10 fixed top-16 bottom-0">
+            <nav class="p-4 flex flex-col gap-1.5">
+                <a href="dashboard.html" class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 border border-transparent rounded-lg font-medium transition-colors">
+                    <i class="fa-solid fa-border-all text-lg w-5 text-center"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="cameras.html" class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 border border-transparent rounded-lg font-medium transition-colors">
+                    <i class="fa-solid fa-camera text-lg w-5 text-center"></i>
+                    <span>Camera Live Feed</span>
+                </a>
+                <a href="reports.html" class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 border border-transparent rounded-lg font-medium transition-colors">
+                    <i class="fa-regular fa-file-lines text-lg w-5 text-center"></i>
+                    <span>Reports</span>
+                </a>
+                <a href="settings.html" class="flex items-center gap-3 px-4 py-3 bg-blue-50 text-blue-600 border border-blue-200 rounded-lg font-medium transition-colors">
+                    <i class="fa-solid fa-gear text-lg w-5 text-center"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+            <div class="p-4 mt-auto">
+                <div class="text-center px-4 py-2 bg-gray-50 text-gray-500 text-sm rounded border border-gray-200">
+                    Version: 1.0.0v
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="ml-64 flex-1 p-6 md:p-8 overflow-y-auto w-full">
+            <div class="max-w-[1400px] mx-auto">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900 mb-1">Settings</h1>
+    <p class="text-gray-500 text-sm">Configure your CrustaScope system preferences</p>
+  </div>
+  <div class="flex items-center gap-3">
+    <button class="flex items-center justify-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-600 font-semibold text-sm px-4 py-2 rounded-lg transition-colors whitespace-nowrap">
+      <i class="fa-solid fa-rotate-right text-xs"></i> Reset to Default
+    </button>
+    <button class="flex items-center justify-center gap-2 bg-[#2F64C4] hover:bg-blue-700 text-white font-semibold text-sm px-5 py-2 rounded-lg shadow-sm transition-colors whitespace-nowrap">
+      <i class="fa-regular fa-floppy-disk text-xs"></i> Save Changes
+    </button>
+  </div>
+</div>
+
+<div class="flex flex-col lg:flex-row gap-6 items-start h-[calc(100vh-14rem)]">
+  <div class="w-full lg:w-64 bg-white rounded-xl shadow-sm border border-gray-100 p-3 shrink-0 flex flex-col gap-1">
+    <a href="#" class="flex items-center gap-3 px-3 py-2 bg-blue-50/50 text-[#2F64C4] rounded-lg font-semibold text-[13px] transition-colors border border-blue-100/50">
+      <i class="fa-solid fa-gear w-4 text-center"></i> General
+    </a>
+    <a href="#" class="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg text-[13px] font-medium transition-colors">
+      <i class="fa-solid fa-camera w-4 text-center"></i> Cameras
+    </a>
+    <a href="#" class="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg text-[13px] font-medium transition-colors">
+      <i class="fa-regular fa-bell w-4 text-center"></i> Notifications
+    </a>
+    <a href="#" class="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg text-[13px] font-medium transition-colors">
+      <i class="fa-solid fa-shield-halved w-4 text-center"></i> Security
+    </a>
+    <a href="#" class="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg text-[13px] font-medium transition-colors">
+      <i class="fa-solid fa-user-group w-4 text-center"></i> Users
+    </a>
+    <a href="#" class="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg text-[13px] font-medium transition-colors">
+      <i class="fa-solid fa-database w-4 text-center"></i> System
+    </a>
+  </div>
+
+  <div class="flex-1 w-full bg-white rounded-xl shadow-sm border border-gray-100 p-8 h-full">
+    <h2 class="text-sm font-bold text-gray-900 mb-5 border-b border-gray-50 pb-3">Organization Information</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 mb-10">
+      <div>
+        <label class="block text-[12px] font-semibold text-gray-500 mb-1.5 tracking-wide">Organization Name</label>
+        <input type="text" value="CrustaScope Security" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-800 text-sm shadow-sm transition-colors">
+      </div>
+      <div>
+        <label class="block text-[12px] font-semibold text-gray-500 mb-1.5 tracking-wide">Contact Email</label>
+        <input type="email" value="admin@crustascope.com" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-800 text-sm shadow-sm transition-colors">
+      </div>
+      <div>
+        <label class="block text-[12px] font-semibold text-gray-500 mb-1.5 tracking-wide">Phone Number</label>
+        <input type="text" value="+1 (555) 123-4567" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-800 text-sm shadow-sm transition-colors">
+      </div>
+      <div>
+        <label class="block text-[12px] font-semibold text-gray-500 mb-1.5 tracking-wide">Time Zone</label>
+        <select class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-800 text-sm shadow-sm appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:14px] bg-[position:right_12px_center] bg-no-repeat pr-10 transition-colors">
+          <option>UTC-05:00 (Eastern Time)</option>
+        </select>
+      </div>
+    </div>
+
+    <h2 class="text-sm font-bold text-gray-900 mb-5 border-b border-gray-50 pb-3 mt-4">Display Preferences</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
+      <div>
+        <label class="block text-[12px] font-semibold text-gray-500 mb-1.5 tracking-wide">Language</label>
+        <select class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-800 text-sm shadow-sm appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:14px] bg-[position:right_12px_center] bg-no-repeat pr-10 transition-colors">
+          <option>English (US)</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-[12px] font-semibold text-gray-500 mb-1.5 tracking-wide">Theme</label>
+        <select class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-800 text-sm shadow-sm appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:14px] bg-[position:right_12px_center] bg-no-repeat pr-10 transition-colors">
+          <option>Light</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

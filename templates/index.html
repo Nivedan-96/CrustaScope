@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrustaScope - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Custom scrollbar to match clean design */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .crab-logo-text {
+            color: #2F64C4;
+        }
+    </style>
+</head>
+<body class="bg-[#f8f9fa] text-gray-900 antialiased overflow-x-hidden">
+    <!-- Top Header -->
+    <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 fixed top-0 left-0 right-0 z-20">
+        <div class="flex items-center gap-3 w-64">
+            <img src="/img/CrustaScope.png" alt="CrustaScope Logo" class="h-9 object-contain">
+            <span class="text-[1.35rem] font-bold crab-logo-text tracking-tight">CrustaScope</span>
+        </div>
+        <div class="text-gray-500 flex justify-end text-sm font-medium">
+            Mon, Dec 1 &bull; 05:18 PM
+        </div>
+    </header>
+
+    <div class="flex h-screen pt-16">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white border-r border-gray-200 flex flex-col justify-between z-10 fixed top-16 bottom-0">
+            <nav class="p-4 flex flex-col gap-1.5">
+                <a href="/" class="flex items-center gap-3 px-4 py-3 bg-blue-50 text-blue-600 border border-blue-200 rounded-lg font-medium transition-colors">
+                    <i class="fa-solid fa-border-all text-lg w-5 text-center"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/camera" class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 border border-transparent rounded-lg font-medium transition-colors">
+                    <i class="fa-solid fa-camera text-lg w-5 text-center"></i>
+                    <span>Camera Live Feed</span>
+                </a>
+                <a href="/reports" class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 border border-transparent rounded-lg font-medium transition-colors">
+                    <i class="fa-regular fa-file-lines text-lg w-5 text-center"></i>
+                    <span>Reports</span>
+                </a>
+                <a href="/settings" class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 border border-transparent rounded-lg font-medium transition-colors">
+                    <i class="fa-solid fa-gear text-lg w-5 text-center"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+            <div class="p-4 mt-auto">
+                <div class="text-center px-4 py-2 bg-gray-50 text-gray-500 text-sm rounded border border-gray-200">
+                    Version: 1.0.0v
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="ml-64 flex-1 p-6 md:p-8 overflow-y-auto w-full">
+            <div class="max-w-[1400px] mx-auto">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+  <h1 class="text-2xl font-bold text-gray-900 mb-1">Dashboard</h1>
+  <p class="text-gray-500 text-sm">Overview of your CrustaScope system</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+  <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+    <div>
+      <h3 class="text-gray-500 text-sm font-medium mb-1">Temperature</h3>
+      <div id="temp-val" class="text-[1.35rem] font-bold text-gray-900 mb-1 tracking-tight">--&deg;C</div>
+      <div class="text-green-500 text-[10px] font-medium tracking-wide">Current reading</div>
+    </div>
+    <div class="w-11 h-11 rounded-[0.4rem] bg-blue-500 text-white flex items-center justify-center">
+      <i class="fa-solid fa-temperature-half text-[1.1rem]"></i>
+    </div>
+  </div>
+  <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+    <div>
+      <h3 class="text-gray-500 text-sm font-medium mb-1">pH Level</h3>
+      <div id="ph-val" class="text-[1.35rem] font-bold text-gray-900 mb-1 tracking-tight">--</div>
+      <div class="text-green-500 text-[10px] font-medium tracking-wide">Current reading</div>
+    </div>
+    <div class="w-11 h-11 rounded-[0.4rem] bg-[#10b981] text-white flex items-center justify-center">
+      <i class="fa-solid fa-droplet text-[1.1rem]"></i>
+    </div>
+  </div>
+  <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+    <div>
+      <h3 class="text-gray-500 text-sm font-medium mb-1">Turbidity</h3>
+      <div id="turb-val" class="text-[1.35rem] font-bold text-gray-900 mb-1 tracking-tight">-- NTU</div>
+      <div class="text-green-500 text-[10px] font-medium tracking-wide">Current reading</div>
+    </div>
+    <div class="w-11 h-11 rounded-[0.4rem] bg-purple-500 text-white flex items-center justify-center">
+      <i class="fa-solid fa-water text-[1.1rem]"></i>
+    </div>
+  </div>
+  <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+    <div>
+      <h3 class="text-gray-500 text-sm font-medium mb-1">TDS</h3>
+      <div id="tds-val" class="text-[1.35rem] font-bold text-gray-900 mb-1 tracking-tight">--</div>
+      <div class="text-green-500 text-[10px] font-medium tracking-wide">Current reading</div>
+    </div>
+    <div class="w-11 h-11 rounded-[0.4rem] bg-orange-500 text-white flex items-center justify-center">
+      <i class="fa-solid fa-wave-square text-[1.1rem]"></i>
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col h-full">
+    <h2 class="text-base font-bold text-gray-900 mb-4">Recent Activity</h2>
+    <div id="recent-activity-container" class="space-y-4">
+      <!-- Injected by JS -->
+      <div class="text-sm text-gray-500 p-4 text-center">Waiting for activity data...</div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col h-full">
+    <h2 class="text-base font-bold text-gray-900 mb-4">Live Sensor Data</h2>
+    <div class="space-y-4 flex-1">
+      <div class="flex items-center justify-between border-b border-gray-50 pb-3">
+        <div class="flex items-center gap-3 text-gray-600 text-sm font-medium">
+          <i class="fa-solid fa-temperature-half text-blue-500 w-4 text-center"></i>
+          <span>Temperature</span>
+        </div>
+        <div id="live-temp-val" class="font-semibold text-gray-900 text-sm">--&deg;C</div>
+      </div>
+      <div class="flex items-center justify-between border-b border-gray-50 pb-3">
+        <div class="flex items-center gap-3 text-gray-600 text-sm font-medium">
+          <i class="fa-solid fa-droplet text-green-500 w-4 text-center"></i>
+          <span>pH Level</span>
+        </div>
+        <div id="live-ph-val" class="font-semibold text-gray-900 text-sm">--</div>
+      </div>
+      <div class="flex items-center justify-between border-b border-gray-50 pb-3">
+        <div class="flex items-center gap-3 text-gray-600 text-sm font-medium">
+          <i class="fa-solid fa-water text-purple-500 w-4 text-center"></i>
+          <span>Turbidity</span>
+        </div>
+        <div id="live-turb-val" class="font-semibold text-gray-900 text-sm">-- NTU</div>
+      </div>
+      <div class="flex items-center justify-between border-b border-gray-50 pb-3">
+        <div class="flex items-center gap-3 text-gray-600 text-sm font-medium">
+          <i class="fa-solid fa-wave-square text-orange-500 w-4 text-center"></i>
+          <span>TDS</span>
+        </div>
+        <div id="live-tds-val" class="font-semibold text-gray-900 text-sm">--</div>
+      </div>
+    </div>
+    <div id="last-updated" class="text-right text-[10px] text-gray-400 mt-2 font-medium">
+      Last updated: --
+    </div>
+  </div>
+</div>
+            </div>
+        </main>
+    </div>
+    <script>
+        function updateSensorData() {
+            fetch('/sensor_live')
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('temp-val').innerHTML = data.temperature_c !== null ? `${data.temperature_c}&deg;C` : 'N/A';
+                    document.getElementById('ph-val').innerHTML = data.ph !== null ? data.ph : 'N/A';
+                    document.getElementById('turb-val').innerHTML = data.turbidity !== null ? `${data.turbidity} NTU` : 'N/A';
+                    document.getElementById('tds-val').innerText = data.tds !== null ? data.tds : 'N/A';
+                    
+                    document.getElementById('live-temp-val').innerHTML = data.temperature_c !== null ? `${data.temperature_c}&deg;C` : 'N/A';
+                    document.getElementById('live-ph-val').innerHTML = data.ph !== null ? data.ph : 'N/A';
+                    document.getElementById('live-turb-val').innerHTML = data.turbidity !== null ? `${data.turbidity} NTU` : 'N/A';
+                    document.getElementById('live-tds-val').innerText = data.tds !== null ? data.tds : 'N/A';
+                    
+                    if(data.timestamp) {
+                        const date = new Date(data.timestamp);
+                        document.getElementById('last-updated').innerText = `Last updated: ${date.toLocaleString()}`;
+                    }
+                })
+                .catch(err => console.error(err));
+        }
+
+        function updateStatus() {
+            fetch('/status')
+                .then(res => res.json())
+                .then(data => {
+                    const activityContainer = document.getElementById('recent-activity-container');
+                    
+                    if(data.label && data.timestamp) {
+                        const date = new Date(data.timestamp);
+                        let iconClass = "fa-check";
+                        let bgClass = "bg-green-100 border-green-200 text-green-500";
+                        let cardBg = "bg-[#f0fdf6]";
+                        
+                        if(data.label === "WSSV DETECTED") {
+                            iconClass = "fa-exclamation";
+                            bgClass = "bg-yellow-100 border-yellow-200 text-yellow-500";
+                            cardBg = "bg-[#fefbf1]";
+                        }
+
+                        // Just display the absolute latest activity replacing the old one for simplicity, 
+                        // matching the single active state logic from backend
+                        activityContainer.innerHTML = `
+                            <div class="flex items-center gap-4 px-4 py-3 rounded-xl ${cardBg}">
+                                <div class="w-6 h-6 rounded-full ${bgClass} border flex items-center justify-center flex-shrink-0">
+                                    <i class="fa-solid ${iconClass} text-[10px]"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-sm font-medium text-gray-800">${data.label} - <span class="font-semibold text-gray-900">${(data.confidence * 100).toFixed(1)}% confidence</span></div>
+                                    <div class="text-gray-400 text-[11px] mt-0.5">${date.toLocaleString()}</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(err => console.error(err));
+        }
+
+        // Run on load
+        updateSensorData();
+        updateStatus();
+        
+        // Poll every 5 seconds
+        setInterval(updateSensorData, 5000);
+        setInterval(updateStatus, 5000);
+    </script>
+</body>
+</html>
