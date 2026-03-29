@@ -1,9 +1,8 @@
-fastapi
 uvicorn
-jinja2
+jinja2==3.0.3
 python-multipart
-opencv-python-headless
 numpy
 pillow
 pymongo
-tensorflow-cpu==2.15.0
+fastapi==0.95.2
+starlette==0.27.0
