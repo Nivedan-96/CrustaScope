@@ -52,8 +52,7 @@ async def require_auth(request: Request, call_next):
 
 # Configure static file serving and HTML template rendering directory
 app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="static")
-
+templates = Jinja2Templates(directory="templates")
 # Cooldown time to prevent saving snapshots too frequently to the database
 SNAP_COOLDOWN_SECONDS = float(os.getenv("SNAP_COOLDOWN_SECONDS", "10.0"))
 
